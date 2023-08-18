@@ -1,9 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-
-
-const membership = require('./routes/membership.route')
+const membership = require('./routes/membership.route');
+const enquiry = require('./routes/enquiries.route');
 
 
 const app = express();
@@ -21,20 +20,20 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 app.use(bodyParser.json())
 
 //CORS control
-app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Credentials', true);
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    next();
-  });
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 //creating base route and assigning it to a port
-app.use('/membership',membership)
+app.use('/membership', membership)
+app.use('/enquiry', enquiry)
 
 
 let port = 1234;
-app.listen(port, ()=>
-{
-    console.log("the port is running on " + port);
+app.listen(port, () => {
+  console.log("the port is running on " + port);
 });
 
