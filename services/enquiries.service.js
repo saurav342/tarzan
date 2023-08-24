@@ -1,4 +1,5 @@
-const Enquiry = require('../models/enquiries.model')
+const Enquiry = require('../models/enquiries.model');
+const moment = require('moment');
 
 
 
@@ -15,6 +16,7 @@ const saveEnquiryData = async (reqBody,res) => {
             gender: reqBody.gender,
             maritalStatus: reqBody.maritalStatus,
             reasonToJoin: reqBody.reasonToJoin,
+			visitedAt: moment().format("D MMMM YYYY"),
         });
     enquiry.save()
     }
@@ -90,23 +92,13 @@ const readEnquiries = async (req,res) =>
 			});
 		}else{
 			query.push({
-				$sort: {createdAt:-1}
+				$sort: {_id:-1}
 			});	
 		}
         console.log(query);
 		let enquiries=await Enquiry.aggregate(query);
 		return res.send({
-	  		message:'Enquiry successfully fetched',
-	  		data:{
-	  			enquiries:enquiries.map(doc => Enquiry.hydrate(doc)),
-	  			meta:{
-	  				total:total,
-	  				currentPage:page,
-	  				perPage:perPage,
-	  				totalPages:Math.ceil(total/perPage)
-	  			}
-
-	  		}
+	  		enquiries
 	  	});
 
     }

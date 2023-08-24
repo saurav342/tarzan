@@ -2,7 +2,9 @@ const nodemailer = require("nodemailer");
 const Membership = require('../models/membership.model');
 const express = require('express');
 const fs = require('fs');
-const pdfParse = require('pdf-parse')
+const path = require('path');
+const multer = require('multer');
+const csv = require('csvtojson');
 
 //send mail
 const sendMailAdmin = async (reqBody) => {
@@ -31,7 +33,7 @@ const sendMailAdmin = async (reqBody) => {
             attachments: [
                 {
                     filename: `invoice-${name}.pdf`,
-                    path: `docs/invoice-as.pdf`
+                    path: `docs/pdf/invoice-${name}.pdf`
                 }
             ]
         }
@@ -42,25 +44,33 @@ const sendMailAdmin = async (reqBody) => {
 
 
 // View Pdf
-const viewPdf = async (req) => {
+const viewPdf = async (reqBody,res) => {
     const id = reqBody.id;
+    console.log(id)
     const data = await Membership.find({ _id: id });
+    console.log(data);
     const name = data[0].firstName + data[0].lastName;
+    console.log(name);
     const fileName = await data.fileName;
-    var stream = fs.createReadStream(`/home/rohit/Documents/Learning/docs/pdf/invoice-${reqBody.firstName + reqBody.lastName}.pdf`);
-  var filename = `invoice-${name}.pdf`; 
-  // Be careful of special characters
-
-  filename = encodeURIComponent(filename);
-  // Ideally this should strip them
-
-  res.setHeader('Content-disposition', 'inline; filename="' + filename + '"');
-  res.setHeader('Content-type', 'application/pdf');
-
-  stream.pipe(res);
+    const pdfPath = path.join(`/home/rohit/Documents/Learning/docs/pdf/invoice-AmanKumar.pdf`);
+    res.sendFile(pdfPath);
 }
 
 
+// csv file to mongo db
+const csvFileSave = async(req,res) =>
+{
+    const jsonArray=await csv().fromFile('Files/test.csv');
+    try{
+        Membership.insertMany(jsonArray);
+        res.json("Inserted");
+    }
+    catch(err)
+    {
+        res.json("error");
+    }
+}
+
 module.exports = {
-    viewPdf, sendMailAdmin
+    viewPdf, sendMailAdmin, csvFileSave
 }

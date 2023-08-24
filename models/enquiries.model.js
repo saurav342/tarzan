@@ -10,6 +10,7 @@ let enquiriesSchema = new Schema({
     gender: {type: String, required: true},
     maritalStatus: {type: String, required: true},
     reasonToJoin: {type: String, required: true},
+    visitedAt: {type:String, required: true}
 });
 
 module.exports = mongoose.model('Enquiries', enquiriesSchema)

@@ -31,6 +31,7 @@ let membershipSchema = new Schema({
     trainerName:{type: String},
     fileName:{type: String},
     status: {type: Number, required: true},
+    joinedAt: {type: String, required: true}
 
 });
 

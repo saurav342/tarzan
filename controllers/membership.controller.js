@@ -1,5 +1,5 @@
 const { sendMail, createPdf, saveMembershipData, createHTML, readMembers } = require('../services/membership.service');
-const { sendMailAdmin,viewPdf } = require('../services/admin.membership.service');
+const { sendMailAdmin,viewPdf,csvFileSave} = require('../services/admin.membership.service');
 
 
 exports.membership_create = async (req, res, next) => {
@@ -23,9 +23,14 @@ exports.admin_membership_send = async (req, res) => {
         await sendMailAdmin(req.body);
 };
 
-exports.admin_membership_show = async(req, res) =>{
-        await viewPdf(req);
+exports.admin_membership_showPdf = async(req, res) =>{
+
+        await viewPdf(req.body);
 };
+
+exports.admin_membership_csv = async(req,res) =>{
+        await csvFileSave(req,res);
+}
 
 
 

@@ -132,6 +132,7 @@ const saveMembershipData = async (reqBody) => {
             trainerName: reqBody.trainerName,
             fileName: "invoice-" + reqBody.firstName + reqBody.lastName.pdf,
             status: 1,
+            joinedAt: moment().format("D MMMM YYYY"),
 
         });
     membership.save()
@@ -143,10 +144,77 @@ const saveMembershipData = async (reqBody) => {
 
 
 // read all members
-const readMembers = async (reqBody,res, error) => 
+const readMembers = async (req,res, error) => 
 {
-    const members = await Membership.find()
-    res.send({ members });
+    try{
+        let query=[
+      
+      ];
+      
+      if(req.query.keyword && req.query.keyword!=''){ 
+      query.push({
+        $match: { 
+          $or :[
+            {
+              firstName : { $regex: req.query.keyword }
+ 
+            },
+            {
+                middleName : { $regex: req.query.keyword }
+            },
+            {
+                lastName : { $regex: req.query.keyword }
+            }
+          ]
+        }
+      });
+      }
+      
+      
+      
+      if(req.query._id){		
+      query.push({
+          $match: { 
+            created_by:mongoose.Types.ObjectId(req.query._id),
+          }	
+      });
+      }
+      
+      let total=await Membership.countDocuments(query);
+      let page=(req.query.page)?parseInt(req.query.page):1;
+      let perPage=(req.query.perPage)?parseInt(req.query.perPage):10;
+      let skip=(page-1)*perPage;
+      query.push({
+      $skip:skip,
+      });
+      query.push({
+      $limit:perPage,
+      });
+      
+      if(req.query.sortBy && req.query.sortOrder){
+      var sort = {};
+      sort[req.query.sortBy] = (req.query.sortOrder=='asc')?1:-1;
+      query.push({
+        $sort: sort
+      });
+      }else{
+      query.push({
+        $sort: {_id:-1}
+      });	
+      }
+        console.log(query);
+      let members=await Membership.aggregate(query);
+      return res.send({
+        members
+      });
+      
+      }
+      catch(err)
+      {
+      
+      }
+    // const members = await Membership.find()
+    // res.send({ members });
 }
 
 module.exports = {
