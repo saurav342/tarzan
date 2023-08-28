@@ -3,6 +3,8 @@ const puppeteer = require('puppeteer');
 const nodemailer = require("nodemailer");
 const Membership = require('../models/membership.model');
 const moment = require('moment');
+const mongoose = require('mongoose');
+
 
 
 
@@ -154,6 +156,7 @@ const readMembers = async (req,res, error) =>
       if(req.query.keyword && req.query.keyword!=''){ 
       query.push({
         $match: { 
+
           $or :[
             {
               firstName : { $regex: req.query.keyword }
@@ -169,8 +172,16 @@ const readMembers = async (req,res, error) =>
         }
       });
       }
-      
-      
+      if(req.query.sortOrder){
+
+        query.push({
+            $sort: {_id:1}
+          });	
+        }else{
+        query.push({
+          $sort: {_id:-1}
+        });	
+        }
       
       if(req.query._id){		
       query.push({
@@ -180,7 +191,7 @@ const readMembers = async (req,res, error) =>
       });
       }
       
-      let total=await Membership.countDocuments(query);
+      let total = await Membership.countDocuments(query);
       let page=(req.query.page)?parseInt(req.query.page):1;
       let perPage=(req.query.perPage)?parseInt(req.query.perPage):10;
       let skip=(page-1)*perPage;
@@ -191,17 +202,7 @@ const readMembers = async (req,res, error) =>
       $limit:perPage,
       });
       
-      if(req.query.sortBy && req.query.sortOrder){
-      var sort = {};
-      sort[req.query.sortBy] = (req.query.sortOrder=='asc')?1:-1;
-      query.push({
-        $sort: sort
-      });
-      }else{
-      query.push({
-        $sort: {_id:-1}
-      });	
-      }
+      
         console.log(query);
       let members=await Membership.aggregate(query);
       return res.send({
